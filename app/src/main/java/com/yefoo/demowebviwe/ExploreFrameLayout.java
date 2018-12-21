@@ -115,10 +115,8 @@ public class ExploreFrameLayout extends FrameLayout {
                         initY = event.getY();
                         initScrollY = getScrollY();
 
-                        if (getScrollY() == limitHeight) {
-                            event.setAction(MotionEvent.ACTION_DOWN);
-                            dispatchTouchEvent(event);
-                        }
+                        event.setAction(MotionEvent.ACTION_DOWN);
+                        dispatchTouchEvent(event);
                     }
 
 
@@ -252,9 +250,9 @@ public class ExploreFrameLayout extends FrameLayout {
         }
 
         if ((!isPullDown && getScrollY() < limitHeight) || (isPullDown && getScrollY() > 0 && baseWebView != null && baseWebView.isTop())) {
-            if (isPullDown && getScrollY() > 0 && baseWebView != null && baseWebView.isTop()) {
+//            if (isPullDown && getScrollY() > 0 && baseWebView != null && baseWebView.isTop()) {
                 initY = ev.getY();
-            }
+//            }
             Log.i(TAG, "onInterceptTouchEvent - >拦截");
             initVelocityTrackerIfNotExists();
             mVelocityTracker.addMovement(ev);
