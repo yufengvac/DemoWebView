@@ -1,7 +1,6 @@
 package com.yefoo.demowebviwe;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -10,11 +9,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
-import android.widget.ScrollView;
 import android.widget.Scroller;
 
 /**
@@ -25,17 +20,16 @@ import android.widget.Scroller;
 public class ExploreFrameLayout extends FrameLayout {
     private static final String TAG = ExploreFrameLayout.class.getSimpleName();
     private int limitHeight = 0;
-    private float scrollY = 0;
-    private float beginY = 0;
     private BaseWebView baseWebView;
-
-    private float initY, initScrollY;
 
     private VelocityTracker mVelocityTracker;
     private int mMaximumVelocity, mMinimumVelocity;
     private Scroller mScroller;
     private int mTouchSlop;
     private boolean isInControl = false;
+    private float lastY;
+    private boolean isDragging;
+    private boolean isTopHidden;
 
 
     public ExploreFrameLayout(@NonNull Context context) {
@@ -83,59 +77,35 @@ public class ExploreFrameLayout extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         initVelocityTrackerIfNotExists();
+        mVelocityTracker.addMovement(event);
+        float y = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mVelocityTracker.clear();
-                mVelocityTracker.addMovement(event);
-                break;
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
+                }
+                lastY = y;
+                return true;
             case MotionEvent.ACTION_MOVE:
-//                if (beginY == 0) {
-//                    beginY = event.getY();
-//                }
-//                boolean isPullDown = false;
-//                float curY = event.getY();
-//                if (curY - beginY > 0) {
-//                    isPullDown = true;
-//                } else if (curY - beginY < 0) {
-//                    isPullDown = false;
-//                }
 
-                float deltaY = event.getY() - initY - initScrollY;
-
-//                scrollY += (curY - beginY);
-//                beginY = curY;
-
-                if (deltaY < 0) { //向上滚动
-
-                    if (-deltaY < limitHeight) {
-                        scrollTo(0, (int) -deltaY);
-                        return true;
-                    } else { //需要手动分发down事件
-                        scrollTo(0, limitHeight);
-                        initY = event.getY();
-                        initScrollY = getScrollY();
-
+                float dy = y - lastY;
+                if (!isDragging && Math.abs(dy) > mTouchSlop) {
+                    isDragging = true;
+                }
+                if (isDragging) {
+                    scrollBy(0, (int) -dy);
+                    // 如果topView隐藏，且上滑动时，则改变当前事件为ACTION_DOWN
+                    if (getScrollY() == limitHeight && dy < 0) {
                         event.setAction(MotionEvent.ACTION_DOWN);
                         dispatchTouchEvent(event);
+                        isInControl = false;
+                        return super.onTouchEvent(event);
                     }
-
-
-                } else if (deltaY > 0) {//向下滚动
-
-                    if (getScrollY() > 0) {
-                        scrollTo(0, (int) (initScrollY - (event.getY() - initY)));
-                        return true;
-                    } else {
-                        scrollTo(0, 0);
-                        initY = event.getY();
-                        initScrollY = getScrollY();
-                    }
-
                 }
-                break;
+                lastY = y;
+                return true;
             case MotionEvent.ACTION_UP:
-                beginY = 0;
-                initY = event.getY();
+                isDragging = false;
                 performClick();
                 mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 int velocityY = (int) mVelocityTracker.getYVelocity();
@@ -145,6 +115,7 @@ public class ExploreFrameLayout extends FrameLayout {
                 recycleVelocityTracker();
                 break;
             case MotionEvent.ACTION_CANCEL:
+                isDragging = false;
                 recycleVelocityTracker();
                 if (!mScroller.isFinished()) {
                     mScroller.abortAnimation();
@@ -166,13 +137,14 @@ public class ExploreFrameLayout extends FrameLayout {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                initY = y;
+                lastY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float dy = y - initY;
+
+                float dy = y - lastY;
 
                 BaseWebView baseWebView = getBaseWebView();
-                if (baseWebView!= null && baseWebView.isTop() && dy > 0 && !isInControl){
+                if (baseWebView != null && baseWebView.isTop() && dy > 0 && !isInControl) {
                     isInControl = true;
                     ev.setAction(MotionEvent.ACTION_CANCEL);
                     MotionEvent ev2 = MotionEvent.obtain(ev);
@@ -191,6 +163,12 @@ public class ExploreFrameLayout extends FrameLayout {
         invalidate();
     }
 
+    public void flingTop(int velocityY) {
+        mScroller.fling(0, limitHeight, 0, velocityY, 0, 0, 0, limitHeight);
+        invalidate();
+
+    }
+
     @Override
     public void scrollTo(int x, int y) {
         if (y < 0) {
@@ -202,7 +180,7 @@ public class ExploreFrameLayout extends FrameLayout {
         if (y != getScrollY()) {
             super.scrollTo(x, y);
         }
-
+        isTopHidden = getScrollY() == limitHeight;
     }
 
     @Override
@@ -213,54 +191,39 @@ public class ExploreFrameLayout extends FrameLayout {
         }
     }
 
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        Log.i(TAG, "onInterceptTouchEvent - >" + ev.getAction());
         if (baseWebView == null) {
             baseWebView = getBaseWebView();
         }
+        float y = ev.getY();
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
-
-                initY = ev.getY();
-                initScrollY = getScrollY();
+                lastY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                return isShouldIntercept(ev);
+                float dy = y - lastY;
+
+                if (Math.abs(dy) > mTouchSlop) {
+                    isDragging = true;
+                    // 如果topView没有隐藏
+                    // 或sc的scrollY = 0 && topView隐藏 && 下拉，则拦截
+                    if (!isTopHidden || (baseWebView != null && baseWebView.isTop() && isTopHidden && dy > 0)) {
+                        initVelocityTrackerIfNotExists();
+                        mVelocityTracker.addMovement(ev);
+                        lastY = y;
+                        return true;
+                    }
+                }
+                break;
             case MotionEvent.ACTION_UP:
-                initY = 0;
+                isDragging = false;
+                recycleVelocityTracker();
                 break;
         }
         return super.onInterceptTouchEvent(ev);
     }
 
-    private boolean isShouldIntercept(MotionEvent ev) {
-        if (baseWebView == null) {
-            baseWebView = getBaseWebView();
-        }
-        if (Math.abs(ev.getY() - initY) <= mTouchSlop) {
-            return super.onInterceptTouchEvent(ev);
-        }
-        boolean isPullDown = false;
-        if (ev.getY() - initY > 0) {
-            isPullDown = true;
-        } else if (ev.getY() - initY < 0) {
-            isPullDown = false;
-        }
-
-        if ((!isPullDown && getScrollY() < limitHeight) || (isPullDown && getScrollY() > 0 && baseWebView != null && baseWebView.isTop())) {
-//            if (isPullDown && getScrollY() > 0 && baseWebView != null && baseWebView.isTop()) {
-                initY = ev.getY();
-//            }
-            Log.i(TAG, "onInterceptTouchEvent - >拦截");
-            initVelocityTrackerIfNotExists();
-            mVelocityTracker.addMovement(ev);
-            return true;
-        }
-
-        return super.onInterceptTouchEvent(ev);
-    }
 
     private void recycleVelocityTracker() {
         if (mVelocityTracker != null) {
@@ -273,22 +236,5 @@ public class ExploreFrameLayout extends FrameLayout {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
-    }
-
-
-    @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
-        Log.i(TAG, "onNestedFling , target->" + target + ",velocityY->" + velocityY + ",consumed->" + consumed);
-        return super.onNestedFling(target, velocityX, velocityY, consumed);
-    }
-
-    @Override
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-        return super.onNestedPreFling(target, velocityX, velocityY);
-    }
-
-    @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
     }
 }
