@@ -5,7 +5,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /**
  * Created by yufeng on 2018/12/20.
@@ -32,7 +34,14 @@ public class BaseWebView extends WebView {
 
     private void init(Context context) {
         getSettings().setJavaScriptEnabled(true);
-        // 把图片加载放在最后来加载渲染
+
+        setWebViewClient(new WebViewClient(){
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -62,7 +71,7 @@ public class BaseWebView extends WebView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.e("BaseWebView", "event->" + event.getAction());
+//        Log.e("BaseWebView", "event->" + event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
 
