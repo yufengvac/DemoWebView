@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ececec"
+    tools:context="com.yefoo.demowebviwe.SecondActivity">
+
+    <Button
+        android:id="@+id/button"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:background="#123456"
+        android:padding="15dp"
+        android:text="黑字不隐藏导航栏透明状态栏"
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button2"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:background="#532322"
+        android:padding="15dp"
+        android:text="黑字隐藏导航栏白色状态栏"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button" />
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#0000ff"
+        app:layout_constraintTop_toBottomOf="@id/button"
+        android:text="showDialog"
+        android:padding="15dp"
+        android:textColor="@android:color/white"/>
+</android.support.constraint.ConstraintLayout>
