@@ -23,7 +23,7 @@ import android.widget.LinearLayout;
 
 public class TestDialogActivity extends AppCompatActivity {
     private LinearLayout topLayout, bottomLayout;
-    private static final int DURATION = 200;
+    private static final int DURATION = 5000;
 
     public static void show(Context context) {
         context.startActivity(new Intent(context, TestDialogActivity.class));
@@ -64,13 +64,14 @@ public class TestDialogActivity extends AppCompatActivity {
 
             if (Build.VERSION.SDK_INT >= 19) {
 //                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             }
             if (Build.VERSION.SDK_INT >= 16) {
 //                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
                 window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             } else if (Build.VERSION.SDK_INT >= 23) {
-                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+//                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                window.getDecorView().setSystemUiVisibility( View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
 
 //            if (Build.VERSION.SDK_INT >= 21) {

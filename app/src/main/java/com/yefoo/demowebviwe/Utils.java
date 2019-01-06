@@ -92,7 +92,7 @@ public class Utils {
         if (Build.VERSION.SDK_INT >= 21) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(ContextCompat.getColor(activity, R.color.colorAccent));
+            window.setNavigationBarColor(ContextCompat.getColor(activity, R.color.black53));
         }
 
 //        if (Build.VERSION.SDK_INT >= 23) {
@@ -202,11 +202,11 @@ public class Utils {
             window.getDecorView().setSystemUiVisibility(flag);
         }
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.parseColor("#FF4081"));
-        }
+//        if (Build.VERSION.SDK_INT >= 21) {
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//            window.setStatusBarColor(Color.TRANSPARENT);
+//            window.setNavigationBarColor(Color.parseColor("#FF4081"));
+//        }
 
     }
 }
