@@ -47,6 +47,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         intiBitmap(gradientImageView);
+
+        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ThirdActivity.class));
+            }
+        });
     }
 
     private void intiBitmap(ImageView imageView) {

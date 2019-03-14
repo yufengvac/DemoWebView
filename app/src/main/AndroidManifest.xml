@@ -18,9 +18,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SecondActivity"></activity>
-        <activity android:name=".TestDialogActivity"
-            android:theme="@style/AppCompatDialogNoActionBar"/>
+        <activity android:name=".SecondActivity" />
+        <activity
+            android:name=".TestDialogActivity"
+            android:theme="@style/AppCompatDialogNoActionBar" />
+        <activity android:name=".ThirdActivity"></activity>
     </application>
 
 </manifest>
